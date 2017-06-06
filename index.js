@@ -97,10 +97,14 @@ Choo.prototype.start = function () {
     var newTree = self.router(self._createLocation())
 
     var morphTiming = nanotiming('choo.morph')
-    self._tree = nanomorph(self._tree, newTree)
-    assert.ok(self._tree, 'choo.render: no valid DOM node returned for location ' + location)
-    morphTiming(self._trace.bind(self))
+    var resultTree = nanomorph(self._tree, newTree)
+    assert.ok(resultTree, 'choo.render: no valid DOM node returned for location ' + location)
+    assert.equal(resultTree, self._tree, 'choo.render: The target node <' +
+      resultTree.nodeName.toLowerCase() + '> is not the same type as the new node <' +
+      self._tree.nodeName.toLowerCase() + '>.')
+    self._tree = resultTree
 
+    morphTiming(self._trace.bind(self))
     renderTiming(self._trace.bind(self))
   }))
 
