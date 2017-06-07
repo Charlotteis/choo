@@ -62,21 +62,28 @@ Choo.prototype.start = function () {
   var self = this
 
   if (this._historyEnabled) {
-    window.onpopstate = function () {
-      self.emitter.emit('pushState')
-    }
-
-    this.emitter.prependListener('pushState', function (href) {
-      if (href) window.history.pushState({}, null, href)
+    this.emitter.prependListener('navigate', function () {
       self.emitter.emit('render')
       setTimeout(scrollIntoView, 0)
+    })
+
+    this.emitter.prependListener('popState', function () {
+      self.emitter.emit('navigate')
+    })
+
+    this.emitter.prependListener('pushState', function (href) {
+      window.history.pushState({}, null, href)
+      self.emitter.emit('navigate')
     })
 
     this.emitter.prependListener('replaceState', function (href) {
-      if (href) window.history.replaceState({}, null, href)
-      self.emitter.emit('render')
-      setTimeout(scrollIntoView, 0)
+      window.history.replaceState({}, null, href)
+      self.emitter.emit('navigate')
     })
+
+    window.onpopstate = function () {
+      self.emitter.emit('popState')
+    }
 
     if (self._hrefEnabled) {
       nanohref(function (location) {
