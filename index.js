@@ -39,6 +39,7 @@ Choo.prototype.route = function (route, handler) {
   this.router.on(route, function (params) {
     return function () {
       self.state.params = params
+      self.state.route = route
       var routeTiming = nanotiming("choo.route('" + route + "')")
       var res = handler(self.state, function (eventName, data) {
         self.emitter.emit(eventName, data)
