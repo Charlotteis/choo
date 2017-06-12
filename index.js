@@ -9,6 +9,16 @@ var assert = require('assert')
 
 module.exports = Choo
 
+var events = Choo.events = {
+  DOMCONTENTLOADED: 'DOMContentLoaded',
+  NAVIGATE: 'navigate',
+  POPSTATE: 'popState',
+  PUSHSTATE: 'pushState',
+  RENDER: 'render',
+  REPLACESTATE: 'replaceState',
+  TRACE: 'trace'
+}
+
 function Choo (opts) {
   if (!(this instanceof Choo)) return new Choo(opts)
   opts = opts || {}
@@ -63,27 +73,27 @@ Choo.prototype.start = function () {
   var self = this
 
   if (this._historyEnabled) {
-    this.emitter.prependListener('navigate', function () {
-      self.emitter.emit('render')
+    this.emitter.prependListener(events.NAVIGATE, function () {
+      self.emitter.emit(events.RENDER)
       setTimeout(scrollIntoView, 0)
     })
 
-    this.emitter.prependListener('popState', function () {
-      self.emitter.emit('navigate')
+    this.emitter.prependListener(events.POPSTATE, function () {
+      self.emitter.emit(events.NAVIGATE)
     })
 
-    this.emitter.prependListener('pushState', function (href) {
+    this.emitter.prependListener(events.PUSHSTATE, function (href) {
       window.history.pushState({}, null, href)
-      self.emitter.emit('navigate')
+      self.emitter.emit(events.NAVIGATE)
     })
 
-    this.emitter.prependListener('replaceState', function (href) {
+    this.emitter.prependListener(events.REPLACESTATE, function (href) {
       window.history.replaceState({}, null, href)
-      self.emitter.emit('navigate')
+      self.emitter.emit(events.NAVIGATE)
     })
 
     window.onpopstate = function () {
-      self.emitter.emit('popState')
+      self.emitter.emit(events.POPSTATE)
     }
 
     if (self._hrefEnabled) {
@@ -91,7 +101,7 @@ Choo.prototype.start = function () {
         var href = location.href
         var currHref = window.location.href
         if (href === currHref) return
-        self.emitter.emit('pushState', href)
+        self.emitter.emit(events.PUSHSTATE, href)
       })
     }
   }
@@ -100,7 +110,7 @@ Choo.prototype.start = function () {
   this._tree = this.router(location)
   assert.ok(this._tree, 'choo.start: no valid DOM node returned for location ' + location)
 
-  this.emitter.prependListener('render', nanoraf(function () {
+  this.emitter.prependListener(events.RENDER, nanoraf(function () {
     var renderTiming = nanotiming('choo.render')
     var newTree = self.router(self._createLocation())
 
@@ -117,7 +127,7 @@ Choo.prototype.start = function () {
   }))
 
   documentReady(function () {
-    self.emitter.emit('DOMContentLoaded')
+    self.emitter.emit(events.DOMCONTENTLOADED)
   })
 
   return this._tree
@@ -168,7 +178,7 @@ Choo.prototype._createLocation = function () {
 
 Choo.prototype._trace = function (timing, name) {
   if (timing) timing.__name = name
-  this.emitter.emit('trace', timing)
+  this.emitter.emit(events.TRACE, timing)
 }
 
 function scrollIntoView () {
