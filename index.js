@@ -54,7 +54,7 @@ Choo.prototype.route = function (route, handler) {
       var res = handler(self.state, function (eventName, data) {
         self.emitter.emit(eventName, data)
       })
-      routeTiming(self._trace.bind(self))
+      routeTiming()
       return res
     }
   })
@@ -122,8 +122,8 @@ Choo.prototype.start = function () {
       self._tree.nodeName.toLowerCase() + '>.')
     self._tree = resultTree
 
-    morphTiming(self._trace.bind(self))
-    renderTiming(self._trace.bind(self))
+    morphTiming()
+    renderTiming()
   }))
 
   documentReady(function () {
@@ -148,14 +148,14 @@ Choo.prototype.mount = function mount (selector) {
 
     var morphTiming = nanotiming('choo.morph')
     var resultTree = nanomorph(root, newTree)
-    morphTiming(self._trace.bind(self))
+    morphTiming()
 
     assert.equal(resultTree, root, 'choo.mount: The target node <' +
       resultTree.nodeName.toLowerCase() + '> is not the same type as the new node <' +
       newTree.nodeName.toLowerCase() + '>.')
 
     self._tree = root
-    renderTiming(self._trace.bind(self))
+    renderTiming()
   })
 }
 
@@ -174,11 +174,6 @@ Choo.prototype._createLocation = function () {
   var pathname = window.location.pathname.replace(/\/$/, '')
   var hash = window.location.hash.replace(/^#/, '/')
   return pathname + hash
-}
-
-Choo.prototype._trace = function (timing, name) {
-  if (timing) timing.__name = name
-  this.emitter.emit(events.TRACE, timing)
 }
 
 function scrollIntoView () {

@@ -4,7 +4,7 @@
   "description": "A 4kb framework for creating sturdy frontend applications",
   "main": "index.js",
   "scripts": {
-    "build": "mkdir -p dist/ && browserify index -p bundle-collapser/plugin > dist/bundle.js && browserify index -g unassertify -g uglifyify -p bundle-collapser/plugin | uglifyjs > dist/bundle.min.js && zopfli -i 100 dist/bundle.min.js && wc -c < dist/bundle.min.js.gz | pretty-bytes",
+    "build": "mkdir -p dist/ && browserify index -p bundle-collapser/plugin > dist/bundle.js && browserify index -g unassertify -g uglifyify -p bundle-collapser/plugin | uglifyjs --mangle-props -c unsafe,properties,dead_code,comparisons,evaluate,hoist_funs,if_return,join_vars,pure_getters,reduce_vars,collapse_vars --toplevel > dist/bundle.min.js && zopfli -i 100 dist/bundle.min.js && wc -c < dist/bundle.min.js.gz | pretty-bytes",
     "deps": "dependency-check --entry ./html.js . && dependency-check . --extra --no-dev --entry ./html.js",
     "inspect": "browserify --full-paths index -g unassertify -g uglifyify | discify --open",
     "prepublish": "npm run build",
@@ -41,8 +41,8 @@
     "spok": "^0.8.1",
     "standard": "^10.0.0",
     "tape": "^4.6.3",
-    "uglifyify": "^3.0.4",
-    "uglifyjs": "^2.4.10",
+    "uglify-es": "^3.0.17",
+    "uglifyify": "^4.0.1",
     "unassertify": "^2.0.4"
   }
 }
