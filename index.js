@@ -1,3 +1,4 @@
+var scrollToAnchor = require('scroll-to-anchor')
 var documentReady = require('document-ready')
 var nanotiming = require('nanotiming')
 var nanorouter = require('nanorouter')
@@ -64,7 +65,7 @@ Choo.prototype.use = function (cb) {
   assert.equal(typeof cb, 'function', 'choo.use: cb should be type function')
   var endTiming = nanotiming('choo.use')
   cb(this.state, this.emitter, this)
-  endTiming(this._trace.bind(this))
+  endTiming()
 }
 
 Choo.prototype.start = function () {
@@ -75,7 +76,7 @@ Choo.prototype.start = function () {
   if (this._historyEnabled) {
     this.emitter.prependListener(events.NAVIGATE, function () {
       self.emitter.emit(events.RENDER)
-      setTimeout(scrollIntoView, 0)
+      setTimeout(scrollToAnchor.bind(null, window.location.hash), 0)
     })
 
     this.emitter.prependListener(events.POPSTATE, function () {
@@ -174,14 +175,4 @@ Choo.prototype._createLocation = function () {
   var pathname = window.location.pathname.replace(/\/$/, '')
   var hash = window.location.hash.replace(/^#/, '/')
   return pathname + hash
-}
-
-function scrollIntoView () {
-  var hash = window.location.hash
-  if (hash) {
-    try {
-      var el = document.querySelector(hash)
-      if (el) el.scrollIntoView(true)
-    } catch (e) {}
-  }
 }
